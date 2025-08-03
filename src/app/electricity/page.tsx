@@ -11,7 +11,7 @@ export default function ElectricityPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [extractedData, setExtractedData] = useState<any>(null);
+  const [extractedData, setExtractedData] = useState<Record<string, unknown> | null>(null);
   const [fileName, setFileName] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -34,15 +34,15 @@ export default function ElectricityPage() {
       } else {
         setError(uploadResponse.data.error || 'Échec de l\'extraction des données');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Une erreur est survenue');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Une erreur est survenue');
     } finally {
       setIsUploading(false);
       setIsProcessing(false);
     }
   };
 
-  const handleSave = async (data: Record<string, any>) => {
+  const handleSave = async (data: Record<string, unknown>) => {
     setIsSaving(true);
     setError('');
 
@@ -61,8 +61,8 @@ export default function ElectricityPage() {
       } else {
         setError('Échec de la sauvegarde');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Erreur lors de la sauvegarde');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Erreur lors de la sauvegarde');
     } finally {
       setIsSaving(false);
     }
@@ -79,7 +79,7 @@ export default function ElectricityPage() {
                 <Zap className="h-10 w-10" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">Factures d'Électricité</h1>
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">Factures d&apos;Électricité</h1>
                 <p className="text-lg text-neutral">Extraction automatique des données STEG</p>
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function ElectricityPage() {
                   </p>
                   <div className="bg-accent-50 rounded-xl p-6 border border-accent-200 max-w-md mx-auto">
                     <p className="text-accent-800 font-medium">
-                      ⚡ Analyse des données de consommation, index et montants en cours...
+                    ⚡ Analyse des données de consommation, index et montants en cours...
                     </p>
                   </div>
                 </div>
@@ -127,7 +127,7 @@ export default function ElectricityPage() {
                   <div className="text-center mb-12">
                     <h2 className="section-header">Télécharger une facture STEG</h2>
                     <p className="section-subtitle max-w-3xl mx-auto">
-                      Sélectionnez votre facture d'électricité pour une extraction automatique et précise des données
+                      Sélectionnez votre facture d&apos;électricité pour une extraction automatique et précise des données
                     </p>
                   </div>
                   <FileUpload
@@ -142,8 +142,8 @@ export default function ElectricityPage() {
               fields={Object.entries(extractedData).map(([key, value]) => ({
                 key,
                 label: electricityFieldLabels[key as keyof typeof electricityFieldLabels] || key,
-                value: typeof value === 'object' && value !== null ? (value as any).value || '' : String(value || ''),
-                confidence: typeof value === 'object' && value !== null ? (value as any).confidence : undefined
+                value: typeof value === 'object' && value !== null ? (value as { value?: string }).value || '' : String(value || ''),
+                confidence: typeof value === 'object' && value !== null ? (value as { confidence?: number }).confidence : undefined
               }))}
               fileName={fileName}
               onSave={handleSave}

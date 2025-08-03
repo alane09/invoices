@@ -13,7 +13,7 @@ interface InvoiceField {
 interface InvoiceFormProps {
   fields: InvoiceField[];
   fileName: string;
-  onSave: (data: Record<string, any>) => void;
+  onSave: (data: Record<string, unknown>) => void;
   isSaving: boolean;
 }
 
@@ -183,10 +183,10 @@ export default function InvoiceForm({ fields, fileName, onSave, isSaving }: Invo
                   </div>
                   
                   {field.confidence && field.confidence < 0.5 && (
-                    <p className="text-xs text-amber-600 flex items-center">
-                      <AlertCircle className="h-3 w-3 mr-1" />
-                      Vérifiez cette valeur - confiance faible
-                    </p>
+                      <p className="text-xs text-amber-600 flex items-center">
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        Vérifiez cette valeur - confiance faible
+                      </p>
                   )}
                 </div>
               ))}
@@ -199,7 +199,7 @@ export default function InvoiceForm({ fields, fileName, onSave, isSaving }: Invo
       <div className="card-modern p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Résumé de l'extraction</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Résumé de l&apos;extraction</h3>
             <div className="flex items-center space-x-6 text-sm">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>

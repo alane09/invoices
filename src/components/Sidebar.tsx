@@ -88,7 +88,7 @@ export default function Sidebar() {
                 <span className="text-sm font-semibold text-gray-900">Système actif</span>
               </div>
               <p className="text-xs text-neutral">
-                IA prête pour l'extraction
+                IA prête pour l&apos;extraction
               </p>
             </div>
           </div>

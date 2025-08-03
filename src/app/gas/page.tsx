@@ -11,7 +11,7 @@ export default function GasPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [extractedData, setExtractedData] = useState<any>(null);
+  const [extractedData, setExtractedData] = useState<Record<string, unknown> | null>(null);
   const [fileName, setFileName] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -34,15 +34,15 @@ export default function GasPage() {
       } else {
         setError(uploadResponse.data.error || 'Échec de l\'extraction des données');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Une erreur est survenue');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Une erreur est survenue');
     } finally {
       setIsUploading(false);
       setIsProcessing(false);
     }
   };
 
-  const handleSave = async (data: Record<string, any>) => {
+  const handleSave = async (data: Record<string, unknown>) => {
     setIsSaving(true);
     setError('');
 
@@ -61,8 +61,8 @@ export default function GasPage() {
       } else {
         setError('Échec de la sauvegarde');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Erreur lors de la sauvegarde');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Erreur lors de la sauvegarde');
     } finally {
       setIsSaving(false);
     }
@@ -142,8 +142,8 @@ export default function GasPage() {
               fields={Object.entries(extractedData).map(([key, value]) => ({
                 key,
                 label: gasFieldLabels[key as keyof typeof gasFieldLabels] || key,
-                value: typeof value === 'object' && value !== null ? (value as any).value || '' : String(value || ''),
-                confidence: typeof value === 'object' && value !== null ? (value as any).confidence : undefined
+                value: typeof value === 'object' && value !== null ? (value as { value?: string }).value || '' : String(value || ''),
+                confidence: typeof value === 'object' && value !== null ? (value as { confidence?: number }).confidence : undefined
               }))}
               fileName={fileName}
               onSave={handleSave}

@@ -73,8 +73,8 @@ function calculateAverageConfidence(data: Record<string, ExtractedField | string
   return Math.round(average * 100) / 100; // Round to 2 decimal places
 }
 
-function normalizeData(data: Record<string, ExtractedField | string>): Record<string, any> {
-  const normalized: Record<string, any> = {};
+function normalizeData(data: Record<string, ExtractedField | string>): Record<string, unknown> {
+  const normalized: Record<string, unknown> = {};
   
   Object.entries(data).forEach(([key, value]) => {
     if (typeof value === 'object') {
@@ -94,18 +94,18 @@ function normalizeData(data: Record<string, ExtractedField | string>): Record<st
   return normalized;
 }
 
-function validateRequest(body: any): { valid: boolean; error?: string; data?: SaveInvoiceRequest } {
+function validateRequest(body: unknown): { valid: boolean; error?: string; data?: SaveInvoiceRequest } {
   if (!body) {
     return { valid: false, error: 'Request body is required' };
   }
 
-  const { invoiceType, fileName, data } = body;
+  const { invoiceType, fileName, data } = body as Record<string, unknown>;
 
   if (!invoiceType) {
     return { valid: false, error: 'Invoice type is required' };
   }
 
-  if (!['electricity', 'gas', 'water'].includes(invoiceType)) {
+  if (!['electricity', 'gas', 'water'].includes(invoiceType as string)) {
     return { valid: false, error: 'Invalid invoice type. Must be electricity, gas, or water' };
   }
 

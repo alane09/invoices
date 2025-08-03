@@ -6,7 +6,7 @@ export interface IInvoice {
   fileName: string;
   date?: string;
   month?: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   status?: 'processing' | 'completed' | 'failed';
   createdAt: Date;
   updatedAt: Date;

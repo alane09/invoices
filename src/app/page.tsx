@@ -20,8 +20,8 @@ export default function HomePage() {
               <span className="text-primary-600">de Factures</span>
             </h1>
             <p className="text-xl text-neutral max-w-4xl mx-auto leading-relaxed mb-12">
-              COFICAB utilise l'IA de pointe pour extraire automatiquement et avec précision 
-              les données de vos factures d'électricité, gaz et eau en quelques secondes.
+              COFICAB utilise l&apos;IA de pointe pour extraire automatiquement et avec précision 
+              les données de vos factures d&apos;électricité, gaz et eau en quelques secondes.
             </p>
             
             {/* Stats */}
@@ -48,13 +48,13 @@ export default function HomePage() {
                 <div className="icon-wrapper icon-electricity mx-auto group-hover:scale-110 transition-transform duration-300">
                   <Zap className="h-8 w-8" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Factures d'Électricité</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Factures d&apos;Électricité</h3>
                 <p className="text-neutral text-center mb-8 leading-relaxed">
                   Extraction complète des données STEG : consommation, index, montants, 
                   et tous les détails de facturation automatiquement.
                 </p>
                 <div className="flex items-center justify-center text-primary-600 font-semibold group-hover:text-primary-700">
-                  <span>Commencer l'extraction</span>
+                  <span>Commencer l&apos;extraction</span>
                   <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                 </div>
               </div>
@@ -71,7 +71,7 @@ export default function HomePage() {
                   tarification détaillée et calculs automatiques.
                 </p>
                 <div className="flex items-center justify-center text-primary-600 font-semibold group-hover:text-primary-700">
-                  <span>Commencer l'extraction</span>
+                  <span>Commencer l&apos;extraction</span>
                   <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                 </div>
               </div>
@@ -82,13 +82,13 @@ export default function HomePage() {
                 <div className="icon-wrapper icon-water mx-auto group-hover:scale-110 transition-transform duration-300">
                   <Droplets className="h-8 w-8" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Factures d'Eau</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Factures d&apos;Eau</h3>
                 <p className="text-neutral text-center mb-8 leading-relaxed">
-                  Extraction SONEDE complète : consommation d'eau, frais d'assainissement, 
+                  Extraction SONEDE complète : consommation d&apos;eau, frais d&apos;assainissement, 
                   et tous les détails tarifaires.
                 </p>
                 <div className="flex items-center justify-center text-primary-600 font-semibold group-hover:text-primary-700">
-                  <span>Commencer l'extraction</span>
+                  <span>Commencer l&apos;extraction</span>
                   <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                 </div>
               </div>
@@ -100,7 +100,7 @@ export default function HomePage() {
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-6">Pourquoi choisir COFICAB ?</h2>
               <p className="text-xl text-neutral max-w-3xl mx-auto">
-                Notre solution d'IA avancée transforme la gestion de vos factures d'énergie
+              Notre solution d&apos;IA avancée transforme la gestion de vos factures d&apos;énergie
               </p>
             </div>
             
@@ -111,7 +111,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Précision Maximale</h3>
                 <p className="text-neutral leading-relaxed">
-                  Notre IA atteint 99.5% de précision dans l'extraction des données de factures
+                Notre IA atteint 99.5% de précision dans l&apos;extraction des données de factures
                 </p>
               </div>
               
@@ -131,7 +131,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">IA Avancée</h3>
                 <p className="text-neutral leading-relaxed">
-                  Technologie Koncile.ai pour une extraction intelligente et rapide
+                Technologie Koncile.ai pour une extraction intelligente et rapide
                 </p>
               </div>
             </div>

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build query
-    const query: any = { status: 'completed' };
+    const query: Record<string, unknown> = { status: 'completed' };
     if (type && ['electricity', 'gas', 'water'].includes(type)) {
       query.type = type;
     }

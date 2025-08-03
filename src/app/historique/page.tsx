@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 import { AlertCircle, Calendar, Droplets, Eye, FileText, Filter, Flame, History, Search, Trash2, Zap } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Invoice {
   _id: string;
@@ -11,7 +11,7 @@ interface Invoice {
   date?: string;
   month?: string;
   uploadedAt: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
 }
 
 export default function HistoriquePage() {
@@ -22,11 +22,7 @@ export default function HistoriquePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
-  useEffect(() => {
-    fetchInvoices();
-  }, [filter]);
-
-  const fetchInvoices = async () => {
+  const fetchInvoices = useCallback(async () => {
     try {
       setLoading(true);
       const params = filter !== 'all' ? `?type=${filter}` : '';
@@ -37,12 +33,16 @@ export default function HistoriquePage() {
       } else {
         setError('Erreur lors du chargement des factures');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Erreur lors du chargement');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Erreur lors du chargement');
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchInvoices();
+  }, [fetchInvoices]);
 
   const deleteInvoice = async (id: string) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette facture ?')) {
@@ -57,8 +57,8 @@ export default function HistoriquePage() {
       } else {
         setError('Erreur lors de la suppression');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Erreur lors de la suppression');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Erreur lors de la suppression');
     }
   };
 
@@ -115,11 +115,11 @@ export default function HistoriquePage() {
     const data = invoice.data;
     
     if (invoice.type === 'electricity') {
-      return data['Montant net à payer']?.value || data['Montant total en chiffres coupon']?.value || 'N/A';
+      return (data['Montant net à payer'] as { value?: string })?.value || (data['Montant total en chiffres coupon'] as { value?: string })?.value || 'N/A';
     } else if (invoice.type === 'gas') {
-      return data['NET A PAYER']?.value || 'N/A';
+      return (data['NET A PAYER'] as { value?: string })?.value || 'N/A';
     } else if (invoice.type === 'water') {
-      return data['Total des frais de consommation eau et assainissement TTC']?.value || 'N/A';
+      return (data['Total des frais de consommation eau et assainissement TTC'] as { value?: string })?.value || 'N/A';
     }
     
     return 'N/A';
@@ -343,7 +343,7 @@ export default function HistoriquePage() {
                     <div className="text-sm font-semibold text-neutral mb-2">{key}</div>
                     <div className="text-gray-900 font-medium">
                       {typeof value === 'object' && value !== null 
-                        ? (value as any).value || 'N/A'
+                        ? (value as { value?: string }).value || 'N/A'
                         : String(value || 'N/A')
                       }
                     </div>

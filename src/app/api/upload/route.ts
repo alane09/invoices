@@ -37,7 +37,7 @@ function validateFile(file: File): { valid: boolean; error?: string } {
   }
 
   // Check file type
-  if (!FILE_CONFIG.ALLOWED_TYPES.includes(file.type as any)) {
+  if (!FILE_CONFIG.ALLOWED_TYPES.includes(file.type as typeof FILE_CONFIG.ALLOWED_TYPES[number])) {
     return { 
       valid: false, 
       error: `Unsupported file type: ${file.type}. Allowed types: PDF, JPG, PNG, XLSX, XLS` 
@@ -46,7 +46,7 @@ function validateFile(file: File): { valid: boolean; error?: string } {
 
   // Check file extension as additional validation
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-  if (!FILE_CONFIG.ALLOWED_EXTENSIONS.includes(fileExtension as any)) {
+  if (!FILE_CONFIG.ALLOWED_EXTENSIONS.includes(fileExtension as '.pdf' | '.jpg' | '.jpeg' | '.png' | '.xlsx' | '.xls')) {
     return { 
       valid: false, 
       error: `Unsupported file extension: ${fileExtension}. Allowed: ${FILE_CONFIG.ALLOWED_EXTENSIONS.join(', ')}` 
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
       // Enhanced error handling for Koncile.ai API
       let errorCode = 'EXTRACTION_FAILED';
       let status = 500;
-      let koncileError = result.error || '';
+        const koncileError = result.error || '';
 
       // Detect rate limit or quota errors from Koncile.ai
       if (koncileError.match(/rate limit|quota|too many requests|429/i)) {

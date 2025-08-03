@@ -79,25 +79,25 @@ class KoncileLogger {
     return levels.indexOf(level) >= levels.indexOf(this.logLevel);
   }
 
-  debug(message: string, data?: any) {
+  debug(message: string, data?: unknown) {
     if (this.shouldLog('debug')) {
       console.log(`🔍 [Koncile Debug] ${message}`, data || '');
     }
   }
 
-  info(message: string, data?: any) {
+  info(message: string, data?: unknown) {
     if (this.shouldLog('info')) {
       console.log(`ℹ️ [Koncile Info] ${message}`, data || '');
     }
   }
 
-  warn(message: string, data?: any) {
+  warn(message: string, data?: unknown) {
     if (this.shouldLog('warn')) {
       console.warn(`⚠️ [Koncile Warning] ${message}`, data || '');
     }
   }
 
-  error(message: string, error?: any) {
+  error(message: string, error?: unknown) {
     if (this.shouldLog('error')) {
       console.error(`❌ [Koncile Error] ${message}`, error || '');
     }
@@ -210,8 +210,8 @@ class KoncileAPIClient {
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
         // Disable keep-alive to prevent connection reuse issues
-        httpAgent: new (require('http').Agent)({ keepAlive: false }),
-        httpsAgent: new (require('https').Agent)({ keepAlive: false }),
+        httpAgent: new (await import('http')).Agent({ keepAlive: false }),
+        httpsAgent: new (await import('https')).Agent({ keepAlive: false }),
         maxRedirects: 5,
         validateStatus: (status: number) => status < 500,
       });
@@ -303,7 +303,7 @@ class KoncileAPIClient {
   /**
    * Complete extraction workflow: upload → poll → extract
    */
-  async extractWithTemplate(fileBuffer: Buffer, fileName: string, templateId: string): Promise<Record<string, any>> {
+  async extractWithTemplate(fileBuffer: Buffer, fileName: string, templateId: string): Promise<Record<string, unknown>> {
     try {
       // Step 1: Upload file
       const taskIds = await this.uploadFile(fileBuffer, fileName, templateId);
@@ -316,7 +316,7 @@ class KoncileAPIClient {
       const taskResult = await this.pollTaskStatus(taskIds[0]);
 
       // Step 3: Extract data from result using correct response structure
-      const extractedData: Record<string, any> = {};
+      const extractedData: Record<string, unknown> = {};
       
       // Combine General_fields and Line_fields
       if (taskResult.General_fields) {
@@ -360,7 +360,7 @@ class KoncileAPIClient {
   /**
    * Fallback: Auto-classification extraction
    */
-  async extractWithAutoClassification(fileBuffer: Buffer, fileName: string): Promise<Record<string, any>> {
+  async extractWithAutoClassification(fileBuffer: Buffer, fileName: string): Promise<Record<string, unknown>> {
     this.logger.info('Using auto-classification for extraction');
     
     // Step 1: Upload without template_id
@@ -374,7 +374,7 @@ class KoncileAPIClient {
     const taskResult = await this.pollTaskStatus(taskIds[0]);
 
     // Step 3: Extract data using correct response structure
-    const extractedData: Record<string, any> = {};
+    const extractedData: Record<string, unknown> = {};
     
     // Combine General_fields and Line_fields
     if (taskResult.General_fields) {
@@ -428,17 +428,25 @@ class KoncileAPIClient {
 }
 
 // Data transformation utilities
-function transformKoncileResponse(extractedData: Record<string, any>, confidenceScore?: number): Record<string, ExtractedField> {
+function transformKoncileResponse(extractedData: Record<string, unknown>, confidenceScore?: number): Record<string, ExtractedField> {
   const logger = KoncileLogger.getInstance();
   const transformedData: Record<string, ExtractedField> = {};
   let fieldsProcessed = 0;
 
-  Object.entries(extractedData).forEach(([key, value]: [string, any]) => {
+  Object.entries(extractedData).forEach(([key, value]: [string, unknown]) => {
     if (value && typeof value === 'object') {
+      const objValue = value as { 
+        value?: string; 
+        text?: string; 
+        content?: string; 
+        confidence_score?: number; 
+        confidence?: number; 
+        position?: { x: number; y: number; width: number; height: number } 
+      };
       transformedData[key] = {
-        value: value.value || String(value.text || value.content || ''),
-        confidence: value.confidence_score || value.confidence || confidenceScore || 0.9,
-        position: value.position || undefined
+        value: objValue.value || String(objValue.text || objValue.content || ''),
+        confidence: objValue.confidence_score || objValue.confidence || confidenceScore || 0.9,
+        position: objValue.position || undefined
       };
     } else {
       transformedData[key] = {

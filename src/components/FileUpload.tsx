@@ -69,9 +69,9 @@ export default function FileUpload({ onUpload, isUploading }: FileUploadProps) {
             </div>
           </div>
           
-          <p className="text-gray-600 mb-4">
-            Fichier prêt pour l'extraction. Cliquez sur "Extraire les données" pour commencer.
-          </p>
+              <p className="text-gray-600 mb-4">
+                Fichier prêt pour l&apos;extraction. Cliquez sur &quot;Extraire les données&quot; pour commencer.
+              </p>
         </div>
       </div>
     );

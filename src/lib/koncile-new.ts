@@ -72,25 +72,25 @@ class KoncileLogger {
     return levels.indexOf(level) >= levels.indexOf(this.logLevel);
   }
 
-  debug(message: string, data?: any) {
+  debug(message: string, data?: unknown) {
     if (this.shouldLog('debug')) {
       console.log(`🔍 [Koncile Debug] ${message}`, data || '');
     }
   }
 
-  info(message: string, data?: any) {
+  info(message: string, data?: unknown) {
     if (this.shouldLog('info')) {
       console.log(`ℹ️ [Koncile Info] ${message}`, data || '');
     }
   }
 
-  warn(message: string, data?: any) {
+  warn(message: string, data?: unknown) {
     if (this.shouldLog('warn')) {
       console.warn(`⚠️ [Koncile Warning] ${message}`, data || '');
     }
   }
 
-  error(message: string, error?: any) {
+  error(message: string, error?: unknown) {
     if (this.shouldLog('error')) {
       console.error(`❌ [Koncile Error] ${message}`, error || '');
     }
@@ -160,7 +160,7 @@ class KoncileAPIClient {
    * Direct extraction using the correct API endpoint
    * POST https://api.koncile.ai/api/templates/{template_id}/extract/
    */
-  async extractWithTemplate(fileBuffer: Buffer, fileName: string, templateId: string): Promise<Record<string, any>> {
+  async extractWithTemplate(fileBuffer: Buffer, fileName: string, templateId: string): Promise<Record<string, unknown>> {
     this.logger.info(`Extracting data using template ${templateId} for file: ${fileName}`);
 
     try {
@@ -193,7 +193,7 @@ class KoncileAPIClient {
       this.logger.debug(`Response status: ${response.status}`);
       this.logger.info(`Extraction successful, got ${Object.keys(response.data).length} fields`);
       
-      return response.data;
+      return response.data as Record<string, unknown>;
       
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -249,17 +249,25 @@ class KoncileAPIClient {
 }
 
 // Data transformation utilities
-function transformKoncileResponse(extractedData: Record<string, any>, confidenceScore?: number): Record<string, ExtractedField> {
+function transformKoncileResponse(extractedData: Record<string, unknown>, confidenceScore?: number): Record<string, ExtractedField> {
   const logger = KoncileLogger.getInstance();
   const transformedData: Record<string, ExtractedField> = {};
   let fieldsProcessed = 0;
 
-  Object.entries(extractedData).forEach(([key, value]: [string, any]) => {
+  Object.entries(extractedData).forEach(([key, value]: [string, unknown]) => {
     if (value && typeof value === 'object') {
+      const objValue = value as { 
+        value?: string; 
+        text?: string; 
+        content?: string; 
+        confidence_score?: number; 
+        confidence?: number; 
+        position?: { x: number; y: number; width: number; height: number } 
+      };
       transformedData[key] = {
-        value: value.value || String(value.text || value.content || ''),
-        confidence: value.confidence_score || value.confidence || confidenceScore || 0.9,
-        position: value.position || undefined
+        value: objValue.value || String(objValue.text || objValue.content || ''),
+        confidence: objValue.confidence_score || objValue.confidence || confidenceScore || 0.9,
+        position: objValue.position || undefined
       };
     } else {
       transformedData[key] = {

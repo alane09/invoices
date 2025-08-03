@@ -11,7 +11,7 @@ export default function WaterPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [extractedData, setExtractedData] = useState<any>(null);
+  const [extractedData, setExtractedData] = useState<Record<string, unknown> | null>(null);
   const [fileName, setFileName] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -34,15 +34,15 @@ export default function WaterPage() {
       } else {
         setError(uploadResponse.data.error || 'Échec de l\'extraction des données');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Une erreur est survenue');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Une erreur est survenue');
     } finally {
       setIsUploading(false);
       setIsProcessing(false);
     }
   };
 
-  const handleSave = async (data: Record<string, any>) => {
+  const handleSave = async (data: Record<string, unknown>) => {
     setIsSaving(true);
     setError('');
 
@@ -61,8 +61,8 @@ export default function WaterPage() {
       } else {
         setError('Échec de la sauvegarde');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Erreur lors de la sauvegarde');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Erreur lors de la sauvegarde');
     } finally {
       setIsSaving(false);
     }
@@ -79,7 +79,7 @@ export default function WaterPage() {
                 <Droplets className="h-10 w-10" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">Factures d'Eau</h1>
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">Factures d&apos;Eau</h1>
                 <p className="text-lg text-neutral">Extraction automatique des données SONEDE</p>
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function WaterPage() {
                   </p>
                   <div className="bg-tertiary-50 rounded-xl p-6 border border-tertiary-200 max-w-md mx-auto">
                     <p className="text-tertiary-800 font-medium">
-                      💧 Analyse de la consommation d'eau et frais d'assainissement en cours...
+                    💧 Analyse de la consommation d&apos;eau et frais d&apos;assainissement en cours...
                     </p>
                   </div>
                 </div>
@@ -127,7 +127,7 @@ export default function WaterPage() {
                   <div className="text-center mb-12">
                     <h2 className="section-header">Télécharger une facture SONEDE</h2>
                     <p className="section-subtitle max-w-3xl mx-auto">
-                      Sélectionnez votre facture d'eau pour une extraction automatique et précise des données
+                      Sélectionnez votre facture d&apos;eau pour une extraction automatique et précise des données
                     </p>
                   </div>
                   <FileUpload
@@ -142,8 +142,8 @@ export default function WaterPage() {
               fields={Object.entries(extractedData).map(([key, value]) => ({
                 key,
                 label: waterFieldLabels[key as keyof typeof waterFieldLabels] || key,
-                value: typeof value === 'object' && value !== null ? (value as any).value || '' : String(value || ''),
-                confidence: typeof value === 'object' && value !== null ? (value as any).confidence : undefined
+                value: typeof value === 'object' && value !== null ? (value as { value?: string }).value || '' : String(value || ''),
+                confidence: typeof value === 'object' && value !== null ? (value as { confidence?: number }).confidence : undefined
               }))}
               fileName={fileName}
               onSave={handleSave}
