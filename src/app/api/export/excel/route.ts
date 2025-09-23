@@ -8,6 +8,16 @@ import dbConnect from '@/lib/mongodb';
 import Invoice from '@/models/Invoice';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Define Query interface for both GET and POST functions
+interface Query {
+  type?: string;
+  createdAt?: {
+    $gte?: Date;
+    $lte?: Date;
+  };
+  _id?: { $in: string[] };
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Connect to database
@@ -20,14 +30,6 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate');
 
     // Build query
-    interface Query {
-      type?: string;
-      createdAt?: {
-        $gte?: Date;
-        $lte?: Date;
-      };
-      _id?: { $in: string[] };
-    }
     const query: Query = {};
     if (type !== 'all') {
       query.type = type;

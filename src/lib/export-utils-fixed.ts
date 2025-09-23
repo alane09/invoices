@@ -87,6 +87,7 @@ export function transformInvoiceData(invoices: Invoice[]): Record<string, Record
  * Generate Excel file with COFICAB branding
  */
 export function generateExcelFile(invoices: Invoice[], options: ExportOptions = {}): Buffer {
+  // Note: options parameter is available for future enhancements
   const workbook = XLSX.utils.book_new();
 
   // Create cover sheet
@@ -185,7 +186,7 @@ export function generatePDFFile(invoices: Invoice[], options: ExportOptions = {}
   ];
 
   types.forEach((typeInfo, index) => {
-    const typeInvoices = invoices.filter(i => i.type === typeInfo.key as any);
+    const typeInvoices = invoices.filter(i => i.type === typeInfo.key as 'electricity' | 'gas' | 'water');
 
     if (typeInvoices.length > 0) {
       if (index > 0) doc.addPage();
@@ -209,14 +210,14 @@ export function generatePDFFile(invoices: Invoice[], options: ExportOptions = {}
 
         // Add key amounts based on type
         if (typeInfo.key === 'electricity') {
-          const amount = (invoice.data['Montant net à payer'] as any)?.value ||
-                        (invoice.data['Montant total en chiffres coupon'] as any)?.value || 'N/A';
+          const amount = (invoice.data['Montant net à payer'] as { value?: string })?.value ||
+                        (invoice.data['Montant total en chiffres coupon'] as { value?: string })?.value || 'N/A';
           row.push(amount);
         } else if (typeInfo.key === 'gas') {
-          const amount = (invoice.data['NET A PAYER'] as any)?.value || 'N/A';
+          const amount = (invoice.data['NET A PAYER'] as { value?: string })?.value || 'N/A';
           row.push(amount);
         } else if (typeInfo.key === 'water') {
-          const amount = (invoice.data['Total des frais de consommation eau et assainissement TTC'] as any)?.value || 'N/A';
+          const amount = (invoice.data['Total des frais de consommation eau et assainissement TTC'] as { value?: string })?.value || 'N/A';
           row.push(amount);
         }
 
@@ -224,7 +225,7 @@ export function generatePDFFile(invoices: Invoice[], options: ExportOptions = {}
       });
 
       // Generate table
-      (doc as any).autoTable({
+      (doc as unknown as { autoTable: (options: unknown) => void }).autoTable({
         startY: 50,
         head: [['Nom du fichier', 'Date de traitement', 'Période', 'Montant']],
         body: tableData,

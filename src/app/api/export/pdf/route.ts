@@ -3,7 +3,7 @@
  * Generates and downloads PDF reports with COFICAB branding
  */
 
-import { generatePDFFile, getExportFilename } from '@/lib/export-utils';
+import { generatePDFFile, getExportFilename } from '@/lib/export-utils-fixed';
 import dbConnect from '@/lib/mongodb';
 import Invoice from '@/models/Invoice';
 import { NextRequest, NextResponse } from 'next/server';
