@@ -359,11 +359,16 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
   color: #6B7280;
   text-decoration: none;
+  margin-bottom: 0.5rem;
 }
 
 .sidebar-nav-item:hover {
   background-color: #f0f9f7;
   color: #14453c;
+}
+
+.sidebar-nav-item:hover svg {
+  color: #1B6254;
 }
 
 .sidebar-nav-item.active {

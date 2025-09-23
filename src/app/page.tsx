@@ -98,7 +98,6 @@ export default function HomePage() {
           {/* Features Section */}
           <div className="card-modern p-12">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">Pourquoi choisir COFICAB ?</h2>
               <p className="text-xl text-neutral max-w-3xl mx-auto">
               Notre solution d&apos;IA avancée transforme la gestion de vos factures d&apos;énergie
               </p>
@@ -121,7 +120,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Sécurité Garantie</h3>
                 <p className="text-neutral leading-relaxed">
-                  Vos données sont protégées par un chiffrement de niveau entreprise
+                  Les  données sont protégées par un chiffrement de niveau entreprise
                 </p>
               </div>
               

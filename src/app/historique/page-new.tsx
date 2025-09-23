@@ -1,7 +1,7 @@
 'use client';
 
 import axios from 'axios';
-import { AlertCircle, Calendar, Droplets, Eye, FileText, Filter, Flame, History, Search, Trash2, Zap } from 'lucide-react';
+import { AlertCircle, Calendar, Download, Droplets, Eye, FileText, Filter, Flame, History, Search, Trash2, Zap } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 interface Invoice {
@@ -21,13 +21,14 @@ export default function HistoriquePage() {
   const [filter, setFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [exportLoading, setExportLoading] = useState<string | null>(null);
 
   const fetchInvoices = useCallback(async () => {
     try {
       setLoading(true);
       const params = filter !== 'all' ? `?type=${filter}` : '';
       const response = await axios.get(`/api/invoices${params}`);
-      
+
       if (response.data.success) {
         setInvoices(response.data.invoices);
       } else {
@@ -51,7 +52,7 @@ export default function HistoriquePage() {
 
     try {
       const response = await axios.delete(`/api/invoices?id=${id}`);
-      
+
       if (response.data.success) {
         setInvoices(invoices.filter(invoice => invoice._id !== id));
       } else {
@@ -59,6 +60,55 @@ export default function HistoriquePage() {
       }
     } catch (err: unknown) {
       setError((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Erreur lors de la suppression');
+    }
+  };
+
+  const exportData = async (format: 'excel' | 'pdf') => {
+    try {
+      setExportLoading(format);
+      setError('');
+
+      const filteredInvoices = invoices.filter(invoice =>
+        invoice.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getTypeLabel(invoice.type).toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      if (filteredInvoices.length === 0) {
+        setError('Aucune facture à exporter avec les filtres actuels');
+        return;
+      }
+
+      const endpoint = format === 'excel' ? '/api/export/excel' : '/api/export/pdf';
+      const invoiceIds = filteredInvoices.map(inv => inv._id);
+
+      const response = await axios.post(endpoint, {
+        invoiceIds,
+        type: filter
+      }, {
+        responseType: 'blob'
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+      const filterSuffix = filter !== 'all' ? `_${filter}` : '';
+      const extension = format === 'excel' ? 'xlsx' : 'pdf';
+      const filename = `coficab_factures${filterSuffix}_${timestamp}.${extension}`;
+
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (err: unknown) {
+      console.error(`Export ${format} error:`, err);
+      setError(`Erreur lors de l'export ${format === 'excel' ? 'Excel' : 'PDF'}`);
+    } finally {
+      setExportLoading(null);
     }
   };
 
@@ -113,7 +163,7 @@ export default function HistoriquePage() {
 
   const getMainAmount = (invoice: Invoice) => {
     const data = invoice.data;
-    
+
     if (invoice.type === 'electricity') {
       return (data['Montant net à payer'] as { value?: string })?.value || (data['Montant total en chiffres coupon'] as { value?: string })?.value || 'N/A';
     } else if (invoice.type === 'gas') {
@@ -121,7 +171,7 @@ export default function HistoriquePage() {
     } else if (invoice.type === 'water') {
       return (data['Total des frais de consommation eau et assainissement TTC'] as { value?: string })?.value || 'N/A';
     }
-    
+
     return 'N/A';
   };
 
@@ -143,13 +193,37 @@ export default function HistoriquePage() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-12">
-            <div className="flex items-center space-x-6 mb-8">
-              <div className="icon-wrapper icon-history">
-                <History className="h-10 w-10" />
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-6">
+                <div className="icon-wrapper icon-history">
+                  <History className="h-10 w-10" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-gray-900 mb-2">Historique des Factures</h1>
+                  <p className="text-lg text-neutral">Consultez et gérez toutes vos factures traitées</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">Historique des Factures</h1>
-                <p className="text-lg text-neutral">Consultez et gérez toutes vos factures traitées</p>
+
+              {/* Export Buttons */}
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => exportData('excel')}
+                  disabled={exportLoading === 'excel' || filteredInvoices.length === 0}
+                  className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Exporter en Excel"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>{exportLoading === 'excel' ? 'Export...' : 'Excel'}</span>
+                </button>
+                <button
+                  onClick={() => exportData('pdf')}
+                  disabled={exportLoading === 'pdf' || filteredInvoices.length === 0}
+                  className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Exporter en PDF"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>{exportLoading === 'pdf' ? 'Export...' : 'PDF'}</span>
+                </button>
               </div>
             </div>
           </div>
@@ -209,7 +283,7 @@ export default function HistoriquePage() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="relative">
                 <Search className="h-5 w-5 text-neutral absolute left-4 top-1/2 transform -translate-y-1/2" />
                 <input
@@ -251,7 +325,7 @@ export default function HistoriquePage() {
                 {searchTerm ? 'Aucun résultat trouvé' : 'Aucune facture trouvée'}
               </h3>
               <p className="text-neutral mb-6">
-                {searchTerm 
+                {searchTerm
                   ? 'Essayez avec d\'autres termes de recherche'
                   : 'Commencez par traiter votre première facture'
                 }
@@ -306,52 +380,6 @@ export default function HistoriquePage() {
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
-                      <button
-                        className="btn-primary px-4 py-2 rounded-md text-sm font-semibold"
-                        onClick={async () => {
-                          try {
-                            const response = await axios.get(`/api/export/excel?id=${invoice._id}`, {
-                              responseType: 'blob',
-                            });
-                            const url = window.URL.createObjectURL(new Blob([response.data]));
-                            const link = document.createElement('a');
-                            link.href = url;
-                            const fileName = `${invoice.month || 'facture'}_${invoice.type}.xlsx`;
-                            link.setAttribute('download', fileName);
-                            document.body.appendChild(link);
-                            link.click();
-                            link.remove();
-                          } catch (error) {
-                            alert('Erreur lors de l\'export Excel');
-                          }
-                        }}
-                        title="Exporter Excel"
-                      >
-                        Export Excel
-                      </button>
-                      <button
-                        className="btn-secondary px-4 py-2 rounded-md text-sm font-semibold"
-                        onClick={async () => {
-                          try {
-                            const response = await axios.get(`/api/export/pdf?id=${invoice._id}`, {
-                              responseType: 'blob',
-                            });
-                            const url = window.URL.createObjectURL(new Blob([response.data]));
-                            const link = document.createElement('a');
-                            link.href = url;
-                            const fileName = `${invoice.month || 'facture'}_${invoice.type}.pdf`;
-                            link.setAttribute('download', fileName);
-                            document.body.appendChild(link);
-                            link.click();
-                            link.remove();
-                          } catch (error) {
-                            alert('Erreur lors de l\'export PDF');
-                          }
-                        }}
-                        title="Exporter PDF"
-                      >
-                        Export PDF
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -388,7 +416,7 @@ export default function HistoriquePage() {
                   <div key={key} className="border border-gray-200 rounded-xl p-4">
                     <div className="text-sm font-semibold text-neutral mb-2">{key}</div>
                     <div className="text-gray-900 font-medium">
-                      {typeof value === 'object' && value !== null 
+                      {typeof value === 'object' && value !== null
                         ? (value as { value?: string }).value || 'N/A'
                         : String(value || 'N/A')
                       }

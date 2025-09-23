@@ -40,7 +40,7 @@ GET https://api.koncile.ai/api/folders/3927/templates/
 
 ## 2. 🚀 Your Next.js API Endpoints (Internal)
 
-### Health Check
+### Health Check - Upload API
 ```bash
 GET http://localhost:3000/api/upload
 ```
@@ -75,6 +75,11 @@ Content-Type: multipart/form-data
 file: <binary_file_data>
 invoiceType: electricity|gas|water
 ```
+
+**Validation Rules:**
+- File types allowed: PDF, JPG, PNG, XLSX, XLS
+- Max file size: 10MB
+- Invoice types allowed: electricity, gas, water
 
 **Example:**
 ```bash
@@ -112,6 +117,17 @@ curl -X POST "http://localhost:3000/api/upload" \
 }
 ```
 
+**Error Codes:**
+- `INVALID_FILE`: File validation failed (size/type/extension)
+- `INVALID_INVOICE_TYPE`: Invoice type invalid
+- `EXTRACTION_FAILED`: Extraction failed due to API or processing error
+- `RATE_LIMIT_EXCEEDED`: API rate limit exceeded
+- `UNAUTHORIZED`: Invalid API key or unauthorized
+- `TEMPLATE_NOT_FOUND`: Template not found for invoice type
+- `INTERNAL_ERROR`: Internal server error
+
+---
+
 ### Save Extracted Invoice Data
 ```bash
 POST http://localhost:3000/api/save
@@ -133,65 +149,154 @@ Content-Type: application/json
       "value": "2024-01-15",
       "confidence": 0.95
     }
+  },
+  "metadata": {
+    "confidence": 0.93,
+    "fieldsExtracted": 12,
+    "processingTime": 3500,
+    "extractedAt": "2025-01-03T14:39:18.641Z",
+    "fileSize": 145408,
+    "fileType": "application/pdf"
   }
 }
 ```
 
-### List/History of Invoices
-```bash
-GET http://localhost:3000/api/invoices
+**Response:**
+```json
+{
+  "success": true,
+  "invoiceId": "63f1a2b4c9e77a0012345678",
+  "message": "Electricity invoice saved successfully",
+  "metadata": {
+    "type": "electricity",
+    "fileName": "invoice.pdf",
+    "fieldsCount": 12,
+    "averageConfidence": 0.93,
+    "processingTime": 3500,
+    "extractedDate": "2024-01-15",
+    "extractedMonth": "January",
+    "savedAt": "2025-01-03T14:39:18.641Z"
+  }
+}
 ```
-**Purpose**: Lists all extracted invoices, supports filtering and pagination.
 
-**Query Parameters:**
-```bash
-?type=electricity&limit=10&page=1&sortBy=createdAt&sortOrder=desc
-```
-
-### Delete Invoice (if implemented)
-```bash
-DELETE http://localhost:3000/api/invoices/{id}
-```
-**Purpose**: Deletes an invoice by ID.
+**Error Codes:**
+- `VALIDATION_ERROR`: Request validation failed
+- `DUPLICATE_INVOICE`: Invoice already exists
+- `DATABASE_ERROR`: Database save error
 
 ---
 
-## 3. 🔗 Useful Links
+### List/History of Invoices
+```bash
+GET http://localhost:3000/api/invoices?type=electricity&limit=10&page=1&sortBy=createdAt&sortOrder=desc
+```
+**Purpose**: Lists all extracted invoices with pagination and filtering.
 
-### Koncile.ai Resources
-- **API Documentation**: https://docs.koncile.ai/
-- **Website**: https://www.koncile.ai/
-- **Template Library**: https://www.koncile.ai/librairie-ocr-templates
+**Response:**
+```json
+{
+  "success": true,
+  "invoices": [
+    {
+      "_id": "63f1a2b4c9e77a0012345678",
+      "type": "electricity",
+      "fileName": "invoice.pdf",
+      "date": "2024-01-15",
+      "month": "January",
+      "data": { ... },
+      "status": "completed",
+      "createdAt": "2025-01-03T14:39:18.641Z",
+      "updatedAt": "2025-01-03T14:39:18.641Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 100,
+    "pages": 10
+  }
+}
+```
 
-### Local Development
-- **Application**: http://localhost:3000
-- **API Health Check**: http://localhost:3000/api/upload
-- **Upload Endpoint**: http://localhost:3000/api/upload
-- **Save Endpoint**: http://localhost:3000/api/save
-- **Invoices List**: http://localhost:3000/api/invoices
+---
+
+### Delete Invoice
+```bash
+DELETE http://localhost:3000/api/invoices?id=63f1a2b4c9e77a0012345678
+```
+**Purpose**: Deletes an invoice by ID.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Invoice deleted successfully"
+}
+```
+
+---
+
+### Deprecated Status Endpoint
+```bash
+GET http://localhost:3000/api/status
+```
+**Response:**
+```json
+{
+  "success": false,
+  "error": "This endpoint is deprecated. Use /api/upload for direct extraction."
+}
+```
+
+---
+
+## 3. 📦 Export APIs
+
+### Excel Export
+```bash
+GET http://localhost:3000/api/export/excel?type=electricity&startDate=2025-01-01&endDate=2025-01-31
+```
+**Purpose**: Generates and downloads Excel files with COFICAB branding.
+
+**Response**: Excel file download with invoice data filtered by type and date range.
+
+**POST**: Accepts JSON body with `invoiceIds` array or `type` filter to generate Excel.
+
+---
+
+### PDF Export
+```bash
+GET http://localhost:3000/api/export/pdf?type=gas&startDate=2025-01-01&endDate=2025-01-31
+```
+**Purpose**: Generates and downloads PDF reports with COFICAB branding.
+
+**Response**: PDF file download with invoice data filtered by type and date range.
+
+**POST**: Accepts JSON body with `invoiceIds` array or `type` filter to generate PDF.
 
 ---
 
 ## 4. 🛡️ Best Practices
 
 ### Security
-- ✅ Always include `Authorization: Bearer pO-kPRnJZUReTMNNZyw9q8OZPhihMUtflROvF1lYEls` header for Koncile.ai requests
-- ✅ Validate file type and size before upload
-- ✅ Handle and log all error responses from the API
-- ✅ Never expose your API key to the frontend
-- ✅ Use environment variables for all sensitive data
+- ✅ Always include `Authorization` header with Bearer token for Koncile.ai requests.
+- ✅ Validate file type and size before upload.
+- ✅ Handle and log all error responses from the API.
+- ✅ Never expose your API key to the frontend.
+- ✅ Use environment variables for all sensitive data.
 
 ### File Handling
-- ✅ Support multiple file formats: PDF, JPG, PNG, XLSX, XLS
-- ✅ Validate file extensions and MIME types
-- ✅ Handle file upload errors gracefully
-- ✅ Clean up temporary files after processing
+- ✅ Support multiple file formats: PDF, JPG, PNG, XLSX, XLS.
+- ✅ Validate file extensions and MIME types.
+- ✅ Handle file upload errors gracefully.
+- ✅ Clean up temporary files after processing.
 
 ### Error Handling
-- ✅ Provide user-friendly error messages
-- ✅ Implement retry mechanisms with exponential backoff
-- ✅ Log detailed error information for debugging
-- ✅ Handle network timeouts and connection issues
+- ✅ Provide user-friendly error messages.
+- ✅ Implement retry mechanisms with exponential backoff.
+- ✅ Log detailed error information for debugging.
+- ✅ Handle network timeouts and connection issues.
 
 ---
 

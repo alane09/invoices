@@ -1,23 +1,21 @@
 'use client';
 
-import { useSidebar } from '@/contexts/SidebarContext';
 import {
-    ChevronLeft,
-    ChevronRight,
-    Droplets,
-    Flame,
-    History,
-    Home,
-    Menu,
-    X,
-    Zap
+  ChevronLeft,
+  ChevronRight,
+  Droplets,
+  Flame,
+  History,
+  Home,
+  Menu,
+  X,
+  Zap
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Coficablogo from '../../public/COFICAB_LOGO.jpeg';
-
 const navigation = [
   { name: 'Accueil', href: '/', icon: Home },
   { name: 'Électricité', href: '/electricity', icon: Zap },
@@ -25,12 +23,11 @@ const navigation = [
   { name: 'Eau', href: '/water', icon: Droplets },
   { name: 'Historique', href: '/historique', icon: History },
 ];
-
 export default function Sidebar() {
-  const { isCollapsed, toggleSidebar } = useSidebar();
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const pathname = usePathname();
-
+  
   // Reset mobile menu state when path changes
   useEffect(() => {
     setIsMobileOpen(false);
@@ -39,7 +36,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Sidebar - Desktop & Mobile */}
-      <div className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 z-40
+      <div className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 z-40 
         ${isCollapsed ? 'w-16' : 'w-64'}
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
@@ -48,9 +45,9 @@ export default function Sidebar() {
           <div className="flex items-center space-x-3">
             <div className={`${isCollapsed ? 'w-8 h-8' : 'w-10 h-10'} flex items-center justify-center`}>
               <Image
-                src={Coficablogo}
-                alt="COFICAB Logo"
-                className="max-w-full max-h-full object-contain"
+                src={Coficablogo} 
+                alt="COFICAB Logo" 
+                className="max-w-full max-h-full object-contain" 
               />
             </div>
             {!isCollapsed && (
@@ -61,7 +58,7 @@ export default function Sidebar() {
             )}
           </div>
           <button
-            onClick={() => toggleSidebar()}
+            onClick={() => setIsCollapsed(!isCollapsed)}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
             {isCollapsed ? (
@@ -77,7 +74,7 @@ export default function Sidebar() {
           {navigation.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
-
+            
             return (
               <Link
                 key={item.name}

@@ -1,4 +1,6 @@
+import MainContent from '@/components/MainContent';
 import Sidebar from '@/components/Sidebar';
+import { SidebarProvider } from '@/contexts/SidebarContext';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -6,7 +8,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'ENERGIX - Invoice AI Extractor',
+  title: 'COFICAB - Invoice AI Extractor',
   description: 'Professional invoice data extraction using advanced AI technology',
 };
 
@@ -18,12 +20,14 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={inter.className}>
-        <div className="flex min-h-screen bg-gray-50">
-          <Sidebar />
-          <main className="flex-1 lg:ml-64 transition-all duration-300">
-            {children}
-          </main>
-        </div>
+        <SidebarProvider>
+          <div className="flex min-h-screen bg-gray-50">
+            <Sidebar />
+            <MainContent>
+              {children}
+            </MainContent>
+          </div>
+        </SidebarProvider>
       </body>
     </html>
   );
